@@ -1,0 +1,95 @@
+Changes
+=======
+
+0.01000
+  - Use Memcached::libmemcached as the underlying library, instead of
+    hooking directly to the C library.
+  - (get|set)_compress_enabled has been renamed to (get|set)_compress_enable
+  - XXX: As of 27 Jan 2008, the API looks like this:
+    * Implemented methods:
+        get()
+        set()
+        get_multi()
+        delete() (its alias remove())
+        flush_all()
+        incr()
+        decr()
+        add()
+        replace()
+        append()
+        prepend()
+        disconnect_all()
+        set_servers()
+        set_compress_threshold()
+        get_compress_threshold()
+        set_compress_enable()
+        get_compress_enable()
+        set_compress_savings()
+        get_compress_savings()
+
+0.00007 - Never released?
+  - Added prepend(), append()
+  - Added first cut support for CAS
+    * cas()
+    * gets()
+    * get_cas()
+    * get_cas_multi()
+  - Implement accessors:
+    * set_support_cas
+  - Use code references instead of code invocation via sub names.
+  - Tweak tests for more coverage
+
+0.00006 - 19 Jan 2008
+  - Makefile.PL now uses Devel::CheckLib
+  - Fix replace(), which was doing set() underneath instead of a real replace
+  - Fix t/03_compress.t which wasn't respecting MEMCACHED_SERVER
+  - Update benchmark to run more set() tests, and to report version
+    number for each modules being used.
+
+0.00005 - 17 Jan 2008
+  - Fix typo in POD.
+  - Implement stats() -- it's a half-baked implementation. Please
+    send patches!
+  - Implement disconnect_all()
+  - Implement some methods that allows you to tweak libmemcached
+    behavior (NOTE: API may not be permanent!)
+    * set_no_block() / is_no_block()
+    * set_distribution_method() / get_distribution_method()
+    * set_hashing_algorithm() / get_hashing_algorithm()
+
+0.00004 - 13 Jan 2008
+  - No code change.
+  - Note in POD what the differences between other memcached clients are.
+    rt #32277
+  - Update tools/benchmark.pl to include the following:
+    * comparisons between get() for small scalar, complex data structures,
+      and compressed data
+    * comparisons between set() for small scalar, complex data structures,
+      and compressed data
+
+0.00003 - 13 Jan 2008
+  - Revert back to go without using backend proxy.
+  - Fix segmentation fault when using get_multi() without debugging enabled.
+  - Implement set() as a pure C function.
+  - Implement add().
+  - Implement replace().
+  - Implement flush_all().
+  - Implement accessors:
+    * set_compress_threshold
+    * get_compress_threshold
+    * set_compress_enabled
+    * get_compress_enabled
+    * set_compress_savings
+    * get_compress_savings
+    * compress_enabled
+  - Fix behavior of set_servers() to actually replace the server list.
+  - Add tools/benchmark.pl to compare against vanilla Cache::Memcached.
+
+0.00002 - 13 Jan 2008
+  - Implement get_multi(), delete(), incr(), decr()
+  - Implement connecting to memcached via unix socket.
+  - Add ::Constants package.
+
+0.00001 - 11 Jan 2008
+  - Initial release.
+  - Only supportes get()/set()
