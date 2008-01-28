@@ -197,21 +197,53 @@ sub stats { die "stats() not implemented" }
 
 sub is_no_block
 {
-    my $self = shift;
-    Memcached::libmemcached::memcached_behavior_get(
-        $self->[MEMD_BACKEND], 
-        Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK(),
-    );
+    shift->behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK() );
 }
 
 sub set_no_block
 {
-    my $self = shift;
-    Memcached::libmemcached::memcached_behavior_set(
-        $self->[MEMD_BACKEND], 
+    shift->behavior_set(
         Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK(),
         $_[0]
     );
+}
+
+sub get_distribution_method
+{
+    shift->behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION() );
+}
+
+sub set_distribution_method
+{
+    shift->behavior_set(
+        Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION(),
+        $_[0]
+    );
+}
+
+sub get_hashing_algorithm
+{
+    shift->behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH() );
+}
+
+sub set_hashing_algorithm
+{
+    shift->behavior_set(
+        Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH(),
+        $_[0]
+    );
+}
+
+sub behavior_get
+{
+    my $self = shift;
+    Memcached::libmemcached::memcached_behavior_get($self->[MEMD_BACKEND], @_);
+}
+
+sub behavior_set
+{
+    my $self = shift;
+    Memcached::libmemcached::memcached_behavior_set($self->[MEMD_BACKEND], @_);
 }
 
 1;
@@ -245,6 +277,11 @@ Cache::Memcached::libmemcached - Perl Interface to libmemcached
   $memd->remove("key"); # Alias to delete
 
   my $hashref = $memd->get_multi(@keys);
+
+  # Constants
+  use Cache::Memcached::libmemcached qw(MEMCACHED_DISTRIBUTION_CONSISTENT);
+  $memd->set_distribution_method(MEMCACHED_DISTRIBUTION_CONSISTENT());
+  
 
 =head1 DESCRIPTION
 
@@ -473,6 +510,13 @@ Certain libmemcached behaviors can be configured with the following
 methods.
 
 (NOTE: This API is not fixed yet)
+
+=head2 behavior_set
+
+=head2 behavior_get
+
+If you want to customize something that we don't have a wrapper for,
+you can directly use these method.
 
 =head2 set_no_block
 
