@@ -3,7 +3,7 @@
 # Copyright (c) 2008 Daisuke Maki <daisuke@endeworks.jp>
 # All rights reserved.
 
-package Cache::Memcached::LibMemcached;
+package Cache::Memcached::libmemcached;
 use strict;
 use warnings;
 use Carp qw(croak);
@@ -192,12 +192,12 @@ __END__
 
 =head1 NAME
 
-Cache::Memcached::LibMemcached - Perl Interface to libmemcached
+Cache::Memcached::libmemcached - Perl Interface to libmemcached
 
 =head1 SYNOPSIS
 
-  use Cache::Memcached::LibMemcached;
-  my $memd = Cache::Memcached::LibMemcached->new({
+  use Cache::Memcached::libmemcached;
+  my $memd = Cache::Memcached::libmemcached->new({
     servers => [ "10.0.0.15:11211", "10.0.0.15:11212", "/var/sock/memcached" ],
     compress_threshold => 10_000
   });
@@ -223,9 +223,9 @@ Cache::Memcached::LibMemcached - Perl Interface to libmemcached
 This is the Cache::Memcached compatible interface to libmemcached,
 a C library to interface with memcached.
 
-Cache::Memcached::LibMemcached is built on top of Memcached::libmemcached.
+Cache::Memcached::libmemcached is built on top of Memcached::libmemcached.
 While Memcached::libmemcached aims to port libmemcached API to perl, 
-Cache::Memcached::LibMemcached attempts to be API compatible with
+Cache::Memcached::libmemcached attempts to be API compatible with
 Cache::Memcached, so it can be used as a drop-in replacement.
 
 =head1 FOR Cache::Memcached::LibMemcached USERS
@@ -398,7 +398,7 @@ Get the CAS value for $key
 
 Gets CAS values for multiple keys
 
-=head1 Cache::Memcached::LibMemcached SPECIFIC METHODS
+=head1 Cache::Memcached::libmemcached SPECIFIC METHODS
 
 These methods are libmemcached-specific.
 
@@ -448,7 +448,7 @@ methods.
 
 =head2 set_no_block
 
-  Cache::Memcached::LibMemcached->new({
+  Cache::Memcached::libmemcached->new({
     ...
     no_block => 1
   });
@@ -491,7 +491,7 @@ Get the hashing algorithm used.
 
   $memd->set_support_cas($boolean);
   # or
-  $memd = Cache::Memcached::LibMemcached->new( {
+  $memd = Cache::Memcached::libmemcached->new( {
     ...
     support_cas => 1
   } );
@@ -510,9 +510,9 @@ main dev environment)
 
 This is the "main" module. It's mostly written in Perl.
 
-=head2 Cache::Memcached::LibMemcached
+=head2 Cache::Memcached::libmemcached
 
-Cache::Memcached::LibMemcached, which is the module for which your reading
+Cache::Memcached::libmemcached, which is the module for which your reading
 the document of, is a perl binding for libmemcached (http://tangent.org/552/libmemcached.html). Not to be confused with libmemcache (see below).
 
 =head2 Cache::Memcached::XS
@@ -531,9 +531,6 @@ Memcached::libmemcached is a straight binding to libmemcached. It has all
 of the libmemcached API. If you don't care about a drop-in replacement for
 Cache::Memcached, and want to benefit from *all* of libmemcached offers,
 this is the way to go.
-
-In the future, Cache::Memcached::LibMemcached will probably switch to using
-Memcached::libmemcached as the underlying module.
 
 =head1 CAVEATS
 
