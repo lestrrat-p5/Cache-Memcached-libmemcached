@@ -49,6 +49,12 @@ BEGIN
     }
 }
 
+sub import
+{
+    my $class = shift;
+    Memcached::libmemcached->export_to_level(1, undef, @_) ;
+}
+
 sub new
 {
     my $class = shift;
