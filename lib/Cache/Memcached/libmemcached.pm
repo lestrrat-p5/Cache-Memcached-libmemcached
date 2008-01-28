@@ -74,6 +74,9 @@ sub new
         $self->_mk_callbacks()
     );
 
+    # behavior options
+    $self->set_no_block( $args->{no_block} ) if exists $args->{no_block};
+
     return $self;
 }
 
@@ -185,6 +188,25 @@ sub disconnect_all
 }
 
 sub stats { die "stats() not implemented" }
+
+sub is_no_block
+{
+    my $self = shift;
+    Memcached::libmemcached::memcached_behavior_get(
+        $self->[MEMD_BACKEND], 
+        Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK(),
+    );
+}
+
+sub set_no_block
+{
+    my $self = shift;
+    Memcached::libmemcached::memcached_behavior_set(
+        $self->[MEMD_BACKEND], 
+        Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK(),
+        $_[0]
+    );
+}
 
 1;
 
