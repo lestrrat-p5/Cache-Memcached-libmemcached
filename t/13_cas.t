@@ -12,15 +12,15 @@ plan(skip_all => "cas() unimplemented");
 #    } else {
 #        plan(tests => 7);
 #    }
-#    use_ok("Cache::Memcached::LibMemcached");
+#    use_ok("Cache::Memcached::libmemcached");
 #}
 #
-#my $cache = Cache::Memcached::LibMemcached->new( {
+#my $cache = Cache::Memcached::libmemcached->new( {
 #    servers => [ $ENV{ MEMCACHED_SERVER } ],
 #    support_cas => 1,
 #} );
 #
-#isa_ok($cache, "Cache::Memcached::LibMemcached");
+#isa_ok($cache, "Cache::Memcached::libmemcached");
 #
 ## XXX The stats() method is half baked, and you should NOT be using it 
 ## in your code! DON'T TRUST THIS CODE!

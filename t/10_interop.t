@@ -11,14 +11,14 @@ BEGIN
     } else {
         plan(tests => 3);
     }
-    use_ok("Cache::Memcached::LibMemcached");
+    use_ok("Cache::Memcached::libmemcached");
 }
 
 my $memcached = Cache::Memcached->new({
     servers => [ $ENV{ MEMCACHED_SERVER } ],
     compress_threshold => 1_000
 });
-my $libmemcached = Cache::Memcached::LibMemcached->new( {
+my $libmemcached = Cache::Memcached::libmemcached->new( {
     servers => [ $ENV{ MEMCACHED_SERVER } ],
     compress_threshold => 1_000
 } );
@@ -28,12 +28,12 @@ my $libmemcached = Cache::Memcached::LibMemcached->new( {
 
     eval {
         $memcached->set("foo", $data);
-        is( $libmemcached->get("foo"), $data, "set via Cache::Memcached, retrieve via Cache::Memcached::LibMemcached");
+        is( $libmemcached->get("foo"), $data, "set via Cache::Memcached, retrieve via Cache::Memcached::libmemcached");
     };
 
     eval {
         $libmemcached->set("foo", $data);
-        is( $memcached->get("foo"), $data, "set via Cache::Memcached::LibMemcached, retrieve via Cache::Memcached");
+        is( $memcached->get("foo"), $data, "set via Cache::Memcached::libmemcached, retrieve via Cache::Memcached");
     };
 }
 

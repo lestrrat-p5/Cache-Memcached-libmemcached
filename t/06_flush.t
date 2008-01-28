@@ -8,13 +8,13 @@ BEGIN
     } else {
         plan(tests => 8);
     }
-    use_ok("Cache::Memcached::LibMemcached");
+    use_ok("Cache::Memcached::libmemcached");
 }
 
-my $cache = Cache::Memcached::LibMemcached->new( {
+my $cache = Cache::Memcached::libmemcached->new( {
     servers => [ $ENV{ MEMCACHED_SERVER } ]
 } );
-isa_ok($cache, "Cache::Memcached::LibMemcached");
+isa_ok($cache, "Cache::Memcached::libmemcached");
 
 my @keys = ('a' .. 'z');
 foreach my $key (@keys) {

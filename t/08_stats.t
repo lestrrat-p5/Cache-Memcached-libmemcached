@@ -13,10 +13,10 @@ use Test::More (skip_all => 'stat() is not implemented');
 #            plan(tests => 2);
 #        }
 #    }
-#    use_ok("Cache::Memcached::LibMemcached");
+#    use_ok("Cache::Memcached::libmemcached");
 #}
 #
-#my $cache = Cache::Memcached::LibMemcached->new( {
+#my $cache = Cache::Memcached::libmemcached->new( {
 #    servers => [ $ENV{ MEMCACHED_SERVER } ]
 #});
 #my $vanilla = Cache::Memcached->new( {

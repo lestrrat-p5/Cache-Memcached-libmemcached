@@ -8,13 +8,13 @@ BEGIN
     } else {
         plan(tests => 22);
     }
-    use_ok("Cache::Memcached::LibMemcached");
+    use_ok("Cache::Memcached::libmemcached");
 }
 
-my $cache = Cache::Memcached::LibMemcached->new( {
+my $cache = Cache::Memcached::libmemcached->new( {
     servers => [ $ENV{ MEMCACHED_SERVER } ]
 } );
-isa_ok($cache, "Cache::Memcached::LibMemcached");
+isa_ok($cache, "Cache::Memcached::libmemcached");
 
 {
     $cache->set("foo", "bar", 300);
@@ -54,25 +54,25 @@ isa_ok($cache, "Cache::Memcached::LibMemcached");
 }
 
 { # bad constructor call
-    $cache = eval { Cache::Memcached::LibMemcached->new() };
+    $cache = eval { Cache::Memcached::libmemcached->new() };
     like($@, qr/No servers specified/);
 }
 
 { # default value in constructor
-    $cache = Cache::Memcached::LibMemcached->new({
+    $cache = Cache::Memcached::libmemcached->new({
         servers => [ $ENV{ MEMCACHED_SERVER } ],
         compress_enable => 1,
     });
     my $explicit = $cache->get_compress_enable;
 
-    $cache = Cache::Memcached::LibMemcached->new({
+    $cache = Cache::Memcached::libmemcached->new({
         servers => [ $ENV{ MEMCACHED_SERVER } ],
     });
     my $implicit = $cache->get_compress_enable;
 
     is($explicit, $implicit);
 
-    $cache = Cache::Memcached::LibMemcached->new({
+    $cache = Cache::Memcached::libmemcached->new({
         servers => [ $ENV{ MEMCACHED_SERVER } ],
         compress_enable => 0,
     });
@@ -81,7 +81,7 @@ isa_ok($cache, "Cache::Memcached::LibMemcached");
 
 SKIP: {
     skip("later", 1);
-    $cache = Cache::Memcached::LibMemcached->new({
+    $cache = Cache::Memcached::libmemcached->new({
         servers => [ $ENV{ MEMCACHED_SERVER } ],
         no_block => 1
     });

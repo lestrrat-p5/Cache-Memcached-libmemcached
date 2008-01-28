@@ -1,8 +1,8 @@
 use strict;
 use inc::Module::Install;
 
-name('Cache-Memcached-LibMemcached');
-all_from('lib/Cache/Memcached/LibMemcached.pm');
+name('Cache-Memcached-libmemcached');
+all_from('lib/Cache/Memcached/libmemcached.pm');
 
 requires('Memcached::libmemcached', '0.1402');
 requires('Storable');
