@@ -1,31 +1,12 @@
 Changes
 =======
 
-0.01000
+0.01000 - 29 Jan 2008
   - Use Memcached::libmemcached as the underlying library, instead of
     hooking directly to the C library.
   - (get|set)_compress_enabled has been renamed to (get|set)_compress_enable
-  - XXX: As of 27 Jan 2008, the API looks like this:
-    * Implemented methods:
-        get()
-        set()
-        get_multi()
-        delete() (its alias remove())
-        flush_all()
-        incr()
-        decr()
-        add()
-        replace()
-        append()
-        prepend()
-        disconnect_all()
-        set_servers()
-        set_compress_threshold()
-        get_compress_threshold()
-        set_compress_enable()
-        get_compress_enable()
-        set_compress_savings()
-        get_compress_savings()
+  - stats() and cas() are currently disabled.
+  - add behavior_set() / behavior_get()
 
 0.00007 - Never released?
   - Added prepend(), append()
