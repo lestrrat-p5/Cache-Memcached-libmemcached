@@ -6,16 +6,11 @@
 package Cache::Memcached::libmemcached;
 use strict;
 use warnings;
+use base qw(Memcached::libmemcached);
 use Carp qw(croak);
-use Memcached::libmemcached ();
 use Storable ();
 
 our $VERSION = '0.01000';
-
-use constant MEMD_BACKEND            => 0;
-use constant MEMD_COMPRESS_ENABLE    => 1;
-use constant MEMD_COMPRESS_THRESHOLD => 2;
-use constant MEMD_COMPRESS_SAVINGS   => 3;
 
 use constant HAVE_ZLIB    => eval { require Compress::Zlib } && !$@;
 use constant F_STORABLE   => 1;
@@ -25,25 +20,17 @@ BEGIN
 {
     # accessors
     foreach my $field qw(compress_enable compress_threshold compress_savings) {
-        eval sprintf(<<"        EOSUB", $field, uc $field, $field, uc $field);
-            sub set_%s {
-                my \$self = shift;
-                \$self->[ MEMD_%s ] = shift;
-            }
-
-            sub get_%s {
-                shift->[ MEMD_%s ];
-            }
+        eval sprintf(<<"        EOSUB", $field, $field, $field, $field);
+            sub set_%s { \$_[0]->{%s} = \$_[1] }
+            sub get_%s { \$_[0]->{%s} }
         EOSUB
         die if $@;
     }
 
     # proxy these methods
-    foreach my $method qw(delete get set add replace prepend append cas) {
+    foreach my $method qw(delete set add replace prepend append cas) {
         eval <<"        EOSUB";
-            sub $method {
-                Memcached::libmemcached::memcached_$method(shift->[MEMD_BACKEND], \@_)
-            }
+            sub $method { shift->memcached_$method(\@_) }
         EOSUB
         die if $@;
     }
@@ -62,20 +49,18 @@ sub new
 
     $args->{servers} || die "No servers specified";
 
-    my $memd  = Memcached::libmemcached::memcached_create();
-    my $self = bless [], $class;
+    my $self = $class->SUPER::new();
 
-    $self->[MEMD_BACKEND]            = $memd;
-    $self->[MEMD_COMPRESS_THRESHOLD] = $args->{compress_threshold};
-    $self->[MEMD_COMPRESS_SAVINGS]   = $args->{compress_savings} || 0.20;
-    $self->[MEMD_COMPRESS_ENABLE]    =
+    $self->{compress_threshold} = $args->{compress_threshold};
+    $self->{compress_savingsS}   = $args->{compress_savings} || 0.20;
+    $self->{compress_enable}    =
         exists $args->{compress_enable} ? $args->{compress_enable} : 1;
 
     # servers 
     $self->set_servers($args->{servers});
 
     # Set compression/serialization callbacks
-    Memcached::libmemcached::memcached_set_callback_coderefs($memd, 
+    $self->set_callback_coderefs(
         # Closures so we have reference to $self
         $self->_mk_callbacks()
     );
@@ -102,18 +87,10 @@ sub server_add
 
     # check for existance of : 
     if (my ($hostname, $port) = split(/:/, $server)) {
-        Memcached::libmemcached::memcached_server_add( $self->[MEMD_BACKEND], $hostname, $port );
+        $self->memcached_server_add($hostname, $port );
     } else {
-        Memcached::libmemcached::memcached_server_add_unix( $self->[MEMD_BACKEND], $server );
+        $self->memcached_server_add_uni( $server );
     }
-}
-
-sub get_multi
-{
-    my $self = shift;
-    my $hv = {};
-    Memcached::libmemcached::memcached_mget_into_hashref($self->[MEMD_BACKEND], [ @_ ], $hv);
-    return $hv;
 }
 
 sub _mk_callbacks
@@ -143,12 +120,12 @@ sub _mk_callbacks
         }
 
         # Check if we need compression
-        if (HAVE_ZLIB && $self->[MEMD_COMPRESS_ENABLE] && $self->[MEMD_COMPRESS_THRESHOLD]) {
+        if (HAVE_ZLIB && $self->{compress_enable} && $self->{compress_threshold}) {
             # Find the byte length
             my $length = bytes::length($_);
-            if ($length > $self->[MEMD_COMPRESS_THRESHOLD]) {
+            if ($length > $self->{compress_threshold}) {
                 my $tmp = Compress::Zlib::memGzip($_);
-                if (1 - bytes::length($tmp) / $length < $self->[MEMD_COMPRESS_SAVINGS]) {
+                if (1 - bytes::length($tmp) / $length < $self->{compress_savingsS}) {
                     $_ = $tmp;
                     $_[1] |= F_COMPRESS;
                 }
@@ -165,7 +142,7 @@ sub incr
     $_[0] or croak("No key specified in incr");
     $_[1] ||= 1 if @_ < 2;
     my $val = 0;
-    Memcached::libmemcached::memcached_increment($self->[MEMD_BACKEND], @_[0,1], $val);
+    $self->memcached_increment(@_[0,1], $val);
     return $val;
 }
 
@@ -175,34 +152,32 @@ sub decr
     $_[0] or croak("No key specified in decr");
     $_[1] ||= 1 if @_ < 2;
     my $val = 0;
-    Memcached::libmemcached::memcached_decrement($self->[MEMD_BACKEND], @_[0,1], $val);
+    $self->memcached_decrement(@_[0,1], $val);
     return $val;
 }
 
 sub flush_all
 {
-    my $self = shift;
-    Memcached::libmemcached::memcached_flush($self->[MEMD_BACKEND], 0);
+    $_[0]->memcached_flush(0);
 }
 
 *remove = \&delete;
 
 sub disconnect_all
 {
-    my $self = shift;
-    Memcached::libmemcached::memcached_quit($self->[MEMD_BACKEND]);
+    $_[0]->memcached_quit();
 }
 
 sub stats { die "stats() not implemented" }
 
 sub is_no_block
 {
-    shift->behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK() );
+    shift->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK() );
 }
 
 sub set_no_block
 {
-    shift->behavior_set(
+    shift->memcached_behavior_set(
         Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK(),
         $_[0]
     );
@@ -210,12 +185,12 @@ sub set_no_block
 
 sub get_distribution_method
 {
-    shift->behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION() );
+    shift->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION() );
 }
 
 sub set_distribution_method
 {
-    shift->behavior_set(
+    shift->memcached_behavior_set(
         Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION(),
         $_[0]
     );
@@ -223,27 +198,15 @@ sub set_distribution_method
 
 sub get_hashing_algorithm
 {
-    shift->behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH() );
+    shift->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH() );
 }
 
 sub set_hashing_algorithm
 {
-    shift->behavior_set(
+    shift->memcached_behavior_set(
         Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH(),
         $_[0]
     );
-}
-
-sub behavior_get
-{
-    my $self = shift;
-    Memcached::libmemcached::memcached_behavior_get($self->[MEMD_BACKEND], @_);
-}
-
-sub behavior_set
-{
-    my $self = shift;
-    Memcached::libmemcached::memcached_behavior_set($self->[MEMD_BACKEND], @_);
 }
 
 1;
@@ -292,6 +255,13 @@ Cache::Memcached::libmemcached is built on top of Memcached::libmemcached.
 While Memcached::libmemcached aims to port libmemcached API to perl, 
 Cache::Memcached::libmemcached attempts to be API compatible with
 Cache::Memcached, so it can be used as a drop-in replacement.
+
+Note that as of version 0.02000, Cache::Memcached::libmemcached I<inherits>
+from Memcached::libmemcached. While you are free to use the 
+Memcached::libmemcached specific methods directly on the object, you should
+use them with care, as it will mean that your code is no longer compatible
+with the Cache::Memcached API therefore losing some of th portability in
+case you want to replace it with some other package.
 
 =head1 FOR Cache::Memcached::LibMemcached USERS
 
