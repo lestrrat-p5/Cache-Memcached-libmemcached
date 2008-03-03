@@ -86,10 +86,11 @@ sub server_add
     my $server = shift;
 
     # check for existance of : 
-    if (my ($hostname, $port) = split(/:/, $server)) {
+    if ($server =~ /^([^:]+):([^:]+)$/) {
+        my ($hostname, $port) = ($1, $2);
         $self->memcached_server_add($hostname, $port );
     } else {
-        $self->memcached_server_add_uni( $server );
+        $self->memcached_server_add_unix_socket( $server );
     }
 }
 
