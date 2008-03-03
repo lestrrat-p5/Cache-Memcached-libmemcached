@@ -4,7 +4,7 @@ use inc::Module::Install;
 name('Cache-Memcached-libmemcached');
 all_from('lib/Cache/Memcached/libmemcached.pm');
 
-requires('Memcached::libmemcached', '0.1405');
+requires('Memcached::libmemcached', '0.1701');
 requires('Storable');
 requires('Carp');
 
