@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.02000 - 04 Mar 2008
+  - Use Memcached::libmemcached 0.1701
+  - Subclass Memcached::libmemcached instead of containing it
+  - Fix problem where detecting host:port wasn't properly working
+  - Update benchmarks
+
 0.01000 - 29 Jan 2008
   - Use Memcached::libmemcached as the underlying library, instead of
     hooking directly to the C library.
