@@ -18,6 +18,12 @@ use constant F_COMPRESS   => 2;
 
 BEGIN
 {
+    # Make sure to load bytes.pm if HAVE_ZLIB is enabled
+    if (HAVE_ZLIB) {
+        require bytes;
+    }
+    
+
     # accessors
     foreach my $field qw(compress_enable compress_threshold compress_savings) {
         eval sprintf(<<"        EOSUB", $field, $field, $field, $field);
