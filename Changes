@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.02001 - 27 Mar 2008
+  - Require bytes pragma, just in case it wasn't loaded elsewhere.
+    Should clear rt #34460
+
 0.02000 - 04 Mar 2008
   - Use Memcached::libmemcached 0.1701
   - Subclass Memcached::libmemcached instead of containing it
