@@ -12,5 +12,5 @@ recommends('Compress::Zlib');
 
 build_requires('Test::More');
 
-auto_install;
+auto_include;
 WriteAll;
