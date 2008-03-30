@@ -73,6 +73,8 @@ sub new
 
     # behavior options
     $self->set_no_block( $args->{no_block} ) if exists $args->{no_block};
+    $self->set_hashing_algorithm( $args->{hashing_algorithm} ) if exists $args->{hashing_algorithm};
+    $self->set_distribution_method( $args->{distribution_method} ) if exists $args->{distribution_method};
 
     return $self;
 }
@@ -250,7 +252,15 @@ Cache::Memcached::libmemcached - Perl Interface to libmemcached
   # Constants
   use Cache::Memcached::libmemcached qw(MEMCACHED_DISTRIBUTION_CONSISTENT);
   $memd->set_distribution_method(MEMCACHED_DISTRIBUTION_CONSISTENT());
-  
+
+  # Extra constructor options that are not in Cache::Memcached
+  # See Memcached::libmemcached::constants for a list of available options
+  my $memd = Cache::Memcached::libmemcached->new({
+    ...,
+    no_block            => $boolean,
+    distribution_method => $distribution_method,
+    hashing_algorithm   => $hashing_algorithm,
+  });
 
 =head1 DESCRIPTION
 
