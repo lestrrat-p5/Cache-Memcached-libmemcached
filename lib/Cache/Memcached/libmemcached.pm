@@ -177,43 +177,42 @@ sub disconnect_all
 
 sub stats { die "stats() not implemented" }
 
-sub is_no_block
+BEGIN
 {
-    shift->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK() );
-}
-
-sub set_no_block
-{
-    shift->memcached_behavior_set(
-        Memcached::libmemcached::MEMCACHED_BEHAVIOR_NO_BLOCK(),
-        $_[0]
+    my @boolean_behavior = qw( no_block );
+    my %behavior = (
+        distribution_method => 'distribution',
+        hashing_algorithm   => 'hash'
     );
-}
 
-sub get_distribution_method
-{
-    shift->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION() );
-}
+    foreach my $name (@boolean_behavior) {
+        my $code = sprintf(<<'        EOSUB', $name, uc $name, $name, uc $name);
+            sub is_%s {
+                $_[0]->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_%s() );
+            }
 
-sub set_distribution_method
-{
-    shift->memcached_behavior_set(
-        Memcached::libmemcached::MEMCACHED_BEHAVIOR_DISTRIBUTION(),
-        $_[0]
-    );
-}
+            sub set_%s {
+                $_[0]->memcached_behavior_set( Memcached::libmemcached::MEMCACHED_BEHAVIOR_%s(), $_[1] );
+            }
+        EOSUB
+        eval $code;
+        die if $@;
+    }
 
-sub get_hashing_algorithm
-{
-    shift->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH() );
-}
+    while (my($method, $field) = each %behavior) {
+        my $code = sprintf(<<'        EOSUB', $method, uc $field, $method, uc $field);
+            sub get_%s {
+                $_[0]->memcached_behavior_get( Memcached::libmemcached::MEMCACHED_BEHAVIOR_%s() );
+            }
 
-sub set_hashing_algorithm
-{
-    shift->memcached_behavior_set(
-        Memcached::libmemcached::MEMCACHED_BEHAVIOR_HASH(),
-        $_[0]
-    );
+            sub set_%s {
+                $_[0]->memcached_behavior_set( Memcached::libmemcached::MEMCACHED_BEHAVIOR_%s(), $_[1]);
+            }
+        EOSUB
+        eval $code;
+        die if $@;
+    }
+
 }
 
 1;
