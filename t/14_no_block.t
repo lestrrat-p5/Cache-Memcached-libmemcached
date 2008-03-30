@@ -6,7 +6,7 @@ BEGIN
     if (! $ENV{ MEMCACHED_SERVER } ) {
         plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
     } else {
-        plan(tests => 7);
+        plan(tests => 9);
     }
     use_ok("Cache::Memcached::libmemcached");
 }
@@ -21,6 +21,12 @@ BEGIN
 
     $cache->set_no_block(1);
     ok( $cache->is_no_block );
+
+    my $value = "non-block via accessor";
+    $cache->remove(__FILE__);
+    $cache->set(__FILE__, $value);
+
+    is($cache->get(__FILE__), $value);
 }
 
 {
@@ -34,5 +40,11 @@ BEGIN
 
     $cache->set_no_block(0);
     ok( !$cache->is_no_block );
+
+    my $value = "non-block via constructor";
+    $cache->remove(__FILE__);
+    $cache->set(__FILE__, $value);
+
+    is($cache->get(__FILE__), $value);
 }
 
