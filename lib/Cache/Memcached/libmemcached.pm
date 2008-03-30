@@ -582,22 +582,26 @@ This is the "main" module. It's mostly written in Perl.
 Cache::Memcached::libmemcached, which is the module for which your reading
 the document of, is a perl binding for libmemcached (http://tangent.org/552/libmemcached.html). Not to be confused with libmemcache (see below).
 
+=head2 Cache::Memcached::Fast
+
+Cache::Memcached::Fast is a memcached client written in XS from scratch.
+As of this writing benchmarks shows that Cache::Memcached::Fast is faster on 
+get_multi(), and Cache::Memcached::libmemcached is faster on regular get()/set()
+
+=head2 Memcached::libmemcached
+
+Memcached::libmemcached is a straight binding to libmemcached, and is also
+the parent class of this module.
+
+It has most of the libmemcached API. If you don't care about a drop-in 
+replacement for Cache::Memcached, and want to benefit from low level API that
+libmemcached offers, this is the way to go.
+
 =head2 Cache::Memcached::XS
 
 Cache::Memcached::XS is a binding for libmemcache (http://people.freebsd.org/~seanc/libmemcache/).
 The main memcached site at http://danga.com/memcached/apis.bml seems to 
 indicate that the underlying libmemcache is no longer in active development.
-
-=head2 Cache::Memcached::Fast
-
-Cache::Memcached::Fast is a memcached client written in XS from scratch.
-
-=head2 Memcached::libmemcached
-
-Memcached::libmemcached is a straight binding to libmemcached. It has all
-of the libmemcached API. If you don't care about a drop-in replacement for
-Cache::Memcached, and want to benefit from *all* of libmemcached offers,
-this is the way to go.
 
 =head1 CAVEATS
 
