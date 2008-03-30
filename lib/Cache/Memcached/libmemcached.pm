@@ -22,7 +22,6 @@ BEGIN
     if (HAVE_ZLIB) {
         require bytes;
     }
-    
 
     # accessors
     foreach my $field qw(compress_enable compress_threshold compress_savings) {
@@ -249,9 +248,19 @@ Cache::Memcached::libmemcached - Perl Interface to libmemcached
 
   my $hashref = $memd->get_multi(@keys);
 
-  # Constants
+  # Constants - explicitly by name or by tags
+  #    see Memcached::libmemcached::constants for a list
   use Cache::Memcached::libmemcached qw(MEMCACHED_DISTRIBUTION_CONSISTENT);
-  $memd->set_distribution_method(MEMCACHED_DISTRIBUTION_CONSISTENT());
+  use Cache::Memcached::libmemcached qw(
+    :defines
+    :memcached_allocated
+    :memcached_behavior
+    :memcached_callback
+    :memcached_connection
+    :memcached_hash
+    :memcached_return
+    :memcached_server_distribution
+  );
 
   # Extra constructor options that are not in Cache::Memcached
   # See Memcached::libmemcached::constants for a list of available options
