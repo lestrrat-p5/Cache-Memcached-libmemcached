@@ -10,7 +10,7 @@ use base qw(Memcached::libmemcached);
 use Carp qw(croak);
 use Storable ();
 
-our $VERSION = '0.02001';
+our $VERSION = '0.02002';
 
 use constant HAVE_ZLIB    => eval { require Compress::Zlib } && !$@;
 use constant F_STORABLE   => 1;

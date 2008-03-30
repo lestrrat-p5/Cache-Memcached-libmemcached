@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.02002 - 30 Mar 2008
+  - Auto-generate accessors.
+  - Add docs and tests for hashing_algorithm and distribution_method.
+    They can also be specified in the constructor.
+  - Add more docs that deals with libmemcached-specific features
+
 0.02001 - 27 Mar 2008
   - Require bytes pragma, just in case it wasn't loaded elsewhere.
     Should clear rt #34460
