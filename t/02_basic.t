@@ -6,7 +6,7 @@ BEGIN
     if (! $ENV{ MEMCACHED_SERVER } ) {
         plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
     } else {
-        plan(tests => 22);
+        plan(tests => 21);
     }
     use_ok("Cache::Memcached::libmemcached");
 }
@@ -78,13 +78,3 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
     });
     ok(!$cache->get_compress_enable, "check explicit compress_enable => 0");
 }
-
-SKIP: {
-    skip("later", 1);
-    $cache = Cache::Memcached::libmemcached->new({
-        servers => [ $ENV{ MEMCACHED_SERVER } ],
-        no_block => 1
-    });
-    is($cache->is_no_block, 1);
-}
-
