@@ -176,7 +176,27 @@ sub disconnect_all
     $_[0]->memcached_quit();
 }
 
-sub stats { die "stats() not implemented" }
+sub stats
+{
+    my %h;
+    my %misc_keys = map { ($_ => 1) }
+      qw/ bytes bytes_read bytes_written
+          cmd_get cmd_set connection_structures curr_items
+          get_hits get_misses
+          total_connections total_items
+        /; 
+    my $code = sub {
+        my($key, $value, $hostport, $type) = @_;
+        $h{hosts}{$hostport}{$type}{$key} = $value;
+        if ($type eq 'misc') {
+            $h{total}{$key} += $value if $misc_keys{$key};
+        } elsif ($type eq 'malloc') {
+            $h{total}{"malloc_$key"} += $value;
+        }
+    };
+    $_[0]->walk_stats($_, $code) for qw(misc malloc sizes self);
+    return \%h;
+}
 
 BEGIN
 {
