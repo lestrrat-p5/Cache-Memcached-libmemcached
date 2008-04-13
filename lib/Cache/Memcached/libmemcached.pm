@@ -187,14 +187,19 @@ sub stats
         /; 
     my $code = sub {
         my($key, $value, $hostport, $type) = @_;
+
+        # XXX - This is hardcoded in the callback cause r139 in perl-memcached
+        # removed the magic of "misc"
+        $type ||= 'misc';
         $h{hosts}{$hostport}{$type}{$key} = $value;
         if ($type eq 'misc') {
             $h{total}{$key} += $value if $misc_keys{$key};
         } elsif ($type eq 'malloc') {
             $h{total}{"malloc_$key"} += $value;
         }
+        return ();
     };
-    $_[0]->walk_stats($_, $code) for qw(misc malloc sizes self);
+    $_[0]->walk_stats($_, $code) for ('', qw(malloc sizes self));
     return \%h;
 }
 
