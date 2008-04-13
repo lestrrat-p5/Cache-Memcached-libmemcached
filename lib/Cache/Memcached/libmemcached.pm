@@ -454,7 +454,8 @@ from Cache::Memcached is, despite its naming, a setter as well.
 
   my $h = $memd->stats();
 
-This method is still half-baked. Patches welcome.
+This method is still half-baked. It gives you some stats. If the values are
+wrong, well, reports, or better yet, patches welcome.
 
 =head2 disconnect_all
 
