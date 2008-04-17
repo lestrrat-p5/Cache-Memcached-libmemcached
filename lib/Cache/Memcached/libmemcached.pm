@@ -8,6 +8,7 @@ use strict;
 use warnings;
 use base qw(Memcached::libmemcached);
 use Carp qw(croak);
+use Scalar::Util qw(weaken);
 use Storable ();
 
 our $VERSION = '0.02003';
@@ -105,6 +106,7 @@ sub _mk_callbacks
 {
     my $self = shift;
 
+    weaken($self);
     my $inflate = sub {
         my ($key, $flags) = @_;
         if ($flags & F_COMPRESS) {
