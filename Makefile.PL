@@ -11,7 +11,7 @@ requires('Task::Weaken');
 
 recommends('Compress::Zlib');
 
-build_requires('Test::More');
+build_requires('Test::More', 0.80);
 
 auto_include;
 WriteAll;
