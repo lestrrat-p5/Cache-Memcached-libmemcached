@@ -1,9 +1,13 @@
 Changes
 =======
 
+0.02004
+  - Require Memcached::libmemcached 0.1902
+  - Explcitly weaken reference to self in the callbacks
+
 0.02003 - 13 Apr 2008
   - Add stats() method
-  - require Memcached::libmemcached 0.190
+  - Require Memcached::libmemcached 0.1901
 
 0.02002 - 30 Mar 2008
   - Auto-generate accessors.
