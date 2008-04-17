@@ -34,9 +34,9 @@ BEGIN
     }
 
     # proxy these methods
-    foreach my $method qw(delete set add replace prepend append cas) {
+    foreach my $method qw(set add replace prepend append cas) {
         eval <<"        EOSUB";
-            sub $method { shift->memcached_$method(\@_) }
+            sub $method { shift->memcached_$method(\@_[0, 1], int(\$_[2] || 0)) }
         EOSUB
         die if $@;
     }
@@ -145,6 +145,8 @@ sub _mk_callbacks
     };
     return ($deflate, $inflate);
 }
+
+sub delete { shift->memcached_delete($_[0], int($_[1] || 0)) }
 
 sub incr
 {
