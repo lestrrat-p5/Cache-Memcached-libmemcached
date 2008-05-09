@@ -11,7 +11,7 @@ use Carp qw(croak);
 use Scalar::Util qw(weaken);
 use Storable ();
 
-our $VERSION = '0.02005';
+our $VERSION = '0.02006';
 
 use constant HAVE_ZLIB    => eval { require Compress::Zlib } && !$@;
 use constant F_STORABLE   => 1;

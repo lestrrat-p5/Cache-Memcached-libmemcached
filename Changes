@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.02006 - 09 May 2008
+  - Namespace support was ot properly working. fixed.
+
 0.02005 - 18 Apr 2008
   - Explicitly require version of Test::More
   - Treat expiration time / time as a special case and don't proxy undef
