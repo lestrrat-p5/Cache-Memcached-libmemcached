@@ -6,7 +6,7 @@ BEGIN
     if (! $ENV{ MEMCACHED_SERVER } ) {
         plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
     } else {
-        plan(tests => 21);
+        plan(tests => 22);
     }
     use_ok("Cache::Memcached::libmemcached");
 }
@@ -77,4 +77,16 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
         compress_enable => 0,
     });
     ok(!$cache->get_compress_enable, "check explicit compress_enable => 0");
+}
+
+{
+    $cache = Cache::Memcached::libmemcached->new({
+        servers => [ $ENV{ MEMCACHED_SERVER } ],
+        compress_enable => 1,
+    });
+
+    my $master_key = 'dummy_master';
+    my $key        = 'foo_with_master';
+    $cache->set([ $master_key, $key ], 100);
+    is( $cache->get([ $master_key, $key ]), 100, "get with master key" );
 }

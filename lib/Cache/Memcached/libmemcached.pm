@@ -38,7 +38,12 @@ BEGIN
         eval <<"        EOSUB";
             sub $method { 
                 my \$self = shift;
-                \$self->memcached_$method(\$self->{namespace} . \$_[0], \$_[1], int(\$_[2] || 0))
+                my (\$master_key, \$key) = \$self->__to_keys(shift);
+                if (\$master_key) {
+                    \$self->SUPER::memcached_${method}_by_key(\$master_key, \$key, \@_);
+                } else {
+                    \$self->SUPER::memcached_${method}(\$key, \@_);
+                }
             }
         EOSUB
         die if $@;
@@ -107,11 +112,27 @@ sub server_add
     }
 }
 
-sub get
+sub __to_keys
 {
     my $self = shift;
     my $key  = shift;
-    $self->SUPER::get($self->{namespace} . $key, @_);
+
+    my $master_key;
+    if (ref $key eq 'ARRAY') {
+        ($master_key, $key) = @$key;
+    }
+
+    if ($self->{namespace}) {
+        $key .= "$self->{namespace}$key";
+    }
+    return ($master_key, $key);
+}
+
+sub get
+{
+    my $self = shift;
+    my ($master_key, $key) = $self->__to_keys(shift);
+    $self->SUPER::get($master_key ? [$master_key, $key] : $key, @_);
 }
 
 sub _mk_callbacks
@@ -209,8 +230,12 @@ sub stats
         $type ||= 'misc';
         $h{hosts}{$hostport}{$type}{$key} = $value;
         if ($type eq 'misc') {
-            $h{total}{$key} += $value if $misc_keys{$key};
+            if ($misc_keys{$key}) {
+                $h{total}{$key} ||= 0;
+                $h{total}{$key} += $value;
+            }
         } elsif ($type eq 'malloc') {
+            $h{total}{"malloc_$key"} ||= 0;
             $h{total}{"malloc_$key"} += $value;
         }
         return ();
@@ -339,10 +364,10 @@ aware of:
 
 =over 4
 
-=item cas() and stats() are not implemented
+=item cas() is not implemented
 
-They were sort of implemented in a previous life, but since 
-Memcached::libmemcached is still undecided how to handle these, we don't
+This was sort of implemented in a previous life, but since 
+Memcached::libmemcached is still undecided how to handle it, we don't
 support it either.
 
 =item performance is probably a bit different
