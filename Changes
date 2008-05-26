@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.02007
+  - Arrayref arguments for get/set/add/et al have been properly
+    implemented. Now you can use master keys. Yey!
+  - Require Memcached::libmemcached 0.2101
+
 0.02006 - 09 May 2008
   - Namespace support was ot properly working. fixed.
 
