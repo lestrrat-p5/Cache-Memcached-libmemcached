@@ -20,9 +20,9 @@ BEGIN
     is( $cache->get_hashing_algorithm,
         Memcached::libmemcached::MEMCACHED_HASH_DEFAULT );
 
-    $cache->set_hashing_algorithm(Memcached::libmemcached::MEMCACHED_HASH_KETAMA);
+    $cache->set_hashing_algorithm(Memcached::libmemcached::MEMCACHED_HASH_MD5);
     is( $cache->get_hashing_algorithm,
-        Memcached::libmemcached::MEMCACHED_HASH_KETAMA );
+        Memcached::libmemcached::MEMCACHED_HASH_MD5 );
 
     my $value = "non-block via accessor";
     $cache->remove(__FILE__);
@@ -34,12 +34,12 @@ BEGIN
 {
     my $cache = Cache::Memcached::libmemcached->new( {
         servers => [ $ENV{ MEMCACHED_SERVER } ],
-        hashing_algorithm => Memcached::libmemcached::MEMCACHED_HASH_KETAMA(),
+        hashing_algorithm => Memcached::libmemcached::MEMCACHED_HASH_MD5(),
     } );
     isa_ok($cache, "Cache::Memcached::libmemcached");
 
     is( $cache->get_hashing_algorithm,
-        Memcached::libmemcached::MEMCACHED_HASH_KETAMA );
+        Memcached::libmemcached::MEMCACHED_HASH_MD5 );
 
     $cache->set_hashing_algorithm(Memcached::libmemcached::MEMCACHED_HASH_DEFAULT);
     is( $cache->get_hashing_algorithm,
