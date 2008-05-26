@@ -10,7 +10,7 @@ can_ok("Cache::Memcached::libmemcached", (
 package DummyOne;
 Test::More::use_ok("Cache::Memcached::libmemcached", ":defines");
 Test::More::can_ok(__PACKAGE__,
-    qw( MEMCACHED_DEFAULT_PORT MEMCACHED_DEFAULT_TIMEOUT MEMCACHED_MAX_BUFFER MEMCACHED_MAX_HOST_LENGTH MEMCACHED_MAX_KEY MEMCACHED_STRIDE MEMCACHED_VERSION_STRING_LENGTH MEMCACHED_WHEEL_SIZE ) );
+    qw( MEMCACHED_DEFAULT_PORT MEMCACHED_DEFAULT_TIMEOUT MEMCACHED_MAX_BUFFER MEMCACHED_MAX_HOST_LENGTH MEMCACHED_MAX_KEY MEMCACHED_STRIDE MEMCACHED_VERSION_STRING_LENGTH ) );
 
 package DummyTwo;
 Test::More::use_ok("Cache::Memcached::libmemcached", ":memcached_allocated");
@@ -57,7 +57,6 @@ Test::More::can_ok(__PACKAGE__,
          MEMCACHED_HASH_FNV1_32
          MEMCACHED_HASH_FNV1_64
          MEMCACHED_HASH_HSIEH
-         MEMCACHED_HASH_KETAMA
          MEMCACHED_HASH_MD5
     )
 );
