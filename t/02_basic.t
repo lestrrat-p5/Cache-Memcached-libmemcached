@@ -6,7 +6,7 @@ BEGIN
     if (! $ENV{ MEMCACHED_SERVER } ) {
         plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
     } else {
-        plan(tests => 22);
+        plan(tests => 25);
     }
     use_ok("Cache::Memcached::libmemcached");
 }
@@ -33,6 +33,12 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
     ok( $cache->delete("foo") );
     ok( ! $cache->get("foo"),  "delete works");
     ok( ! $cache->delete("foo") );
+}
+
+{
+    ok( $cache->set("foo", 1), "prep for incr" );
+    is( $cache->incr("foo"), 2, "incr returns 1 more than previous" );
+    is( $cache->decr("foo"), 1, "decr returns 1 less than previous" );
 }
 
 {
@@ -79,7 +85,10 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
     ok(!$cache->get_compress_enable, "check explicit compress_enable => 0");
 }
 
-{
+SKIP: {
+    if (Cache::Memcached::libmemcached::OPTIMIZE) {
+        skip("OPTIMIZE flag is enabled", 1);
+    }
     $cache = Cache::Memcached::libmemcached->new({
         servers => [ $ENV{ MEMCACHED_SERVER } ],
         compress_enable => 1,
@@ -90,3 +99,4 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
     $cache->set([ $master_key, $key ], 100);
     is( $cache->get([ $master_key, $key ]), 100, "get with master key" );
 }
+
