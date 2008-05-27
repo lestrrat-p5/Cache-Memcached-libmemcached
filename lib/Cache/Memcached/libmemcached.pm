@@ -16,6 +16,7 @@ our $VERSION = '0.02007';
 use constant HAVE_ZLIB    => eval { require Compress::Zlib } && !$@;
 use constant F_STORABLE   => 1;
 use constant F_COMPRESS   => 2;
+use constant OPTIMIZE     => $ENV{PERL_LIBMEMCACHED_OPTIMIZE} ? 1 : 0;
 
 BEGIN
 {
@@ -33,20 +34,49 @@ BEGIN
         die if $@;
     }
 
-    # proxy these methods
-    foreach my $method qw(set add replace prepend append cas) {
-        eval <<"        EOSUB";
-            sub $method { 
-                my \$self = shift;
-                my (\$master_key, \$key) = \$self->__to_keys(shift);
-                if (\$master_key) {
-                    \$self->SUPER::memcached_${method}_by_key(\$master_key, \$key, \@_);
-                } else {
-                    \$self->SUPER::memcached_${method}(\$key, \@_);
+    if (OPTIMIZE) {
+        # If the optimize flag is enabled, we do not support master key
+        # generation, cause we really care about the speed.
+        foreach my $method qw(get set add replace prepend append cas delete) {
+            eval <<"            EOSUB";
+                sub $method {
+                    my \$self = shift;
+                    my \$key  = shift;
+                    if (\$self->{namespace}) {
+                        \$key = "\$self->{namespace}\$key";
+                    }
+                    \$self->SUPER::memcached_${method}(\$key, \@_)
                 }
-            }
-        EOSUB
-        die if $@;
+            EOSUB
+            die if $@;
+        }
+    } else {
+        # Regular case.
+        # Mental note. We only do this cause while we're faster than
+        # Cache::Memcached::Fast, *even* when the above optimization isn't
+        # toggled.
+        foreach my $method qw(get set add replace prepend append cas delete) {
+            eval <<"            EOSUB";
+                sub $method { 
+                    my \$self = shift;
+                    my \$key  = shift;
+                    my \$master_key;
+                    if (ref \$key eq 'ARRAY') {
+                        (\$master_key, \$key) = @\$key;
+                    }
+
+                    if (\$self->{namespace}) {
+                        \$key = "\$self->{namespace}\$key";
+                    }
+                    if (\$master_key) {
+                        \$self->SUPER::memcached_${method}_by_key(\$master_key, \$key, \@_);
+                    } else {
+                        \$self->SUPER::memcached_${method}(\$key, \@_);
+                    }
+                }
+            EOSUB
+            die if $@;
+        }
     }
 }
 
@@ -112,29 +142,6 @@ sub server_add
     }
 }
 
-sub __to_keys
-{
-    my $self = shift;
-    my $key  = shift;
-
-    my $master_key;
-    if (ref $key eq 'ARRAY') {
-        ($master_key, $key) = @$key;
-    }
-
-    if ($self->{namespace}) {
-        $key .= "$self->{namespace}$key";
-    }
-    return ($master_key, $key);
-}
-
-sub get
-{
-    my $self = shift;
-    my ($master_key, $key) = $self->__to_keys(shift);
-    $self->SUPER::get($master_key ? [$master_key, $key] : $key, @_);
-}
-
 sub _mk_callbacks
 {
     my $self = shift;
@@ -179,25 +186,29 @@ sub _mk_callbacks
     return ($deflate, $inflate);
 }
 
-sub delete { shift->memcached_delete($_[0], int($_[1] || 0)) }
-
 sub incr
 {
     my $self = shift;
-    $_[0] or croak("No key specified in incr");
-    $_[1] ||= 1 if @_ < 2;
+    my $key  = shift;
+    if ($self->{namespace}) {
+        $key = "$self->{namespace}$key";
+    }
+    $_[0] ||= 1 if @_ < 2;
     my $val = 0;
-    $self->memcached_increment(@_[0,1], $val);
+    $self->memcached_increment($key, $_[0], $val);
     return $val;
 }
 
 sub decr
 {
     my $self = shift;
-    $_[0] or croak("No key specified in decr");
-    $_[1] ||= 1 if @_ < 2;
+    my $key  = shift;
+    if ($self->{namespace}) {
+        $key = "$self->{namespace}$key";
+    }
+    $_[0] ||= 1 if @_ < 2;
     my $val = 0;
-    $self->memcached_decrement(@_[0,1], $val);
+    $self->memcached_decrement($key, $_[0], $val);
     return $val;
 }
 
@@ -631,6 +642,18 @@ Get the hashing algorithm used.
   } );
 
 Enable/disable CAS support.
+
+=head1 OPTIMIZE FLAG
+
+There's an EXPERIMENTAL optimization available for some corner cases, where
+if you know before hand that you won't be using some features, you can
+disable them all together for some performance boost. To enable this mode,
+set an environment variable named PERL_LIBMEMCACHED_OPTIMIZE to a true value
+
+=head2 NO MASTER KEY SUPPORT
+
+If you are 100% sure that you won't be using the master key support, where 
+you provide an arrayref as the key, you get about 4~5% performance boost.
 
 =head1 VARIOUS MEMCACHED MODULES
 
