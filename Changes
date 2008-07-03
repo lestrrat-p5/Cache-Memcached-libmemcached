@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.02008 - 03 Jul 2008
+  - Offsets passed to decr() and incr() weren't properly handled.
+    Pointed out by Taro Funaki
+
 0.02007 - 27 May 2008
   - Arrayref arguments for get/set/add/et al have been properly
     implemented. Now you can use master keys. Yey!
