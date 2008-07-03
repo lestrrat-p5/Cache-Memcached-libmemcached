@@ -190,12 +190,12 @@ sub incr
 {
     my $self = shift;
     my $key  = shift;
+    my $offset = shift || 1;
     if ($self->{namespace}) {
         $key = "$self->{namespace}$key";
     }
-    $_[0] ||= 1 if @_ < 2;
     my $val = 0;
-    $self->memcached_increment($key, $_[0], $val);
+    $self->memcached_increment($key, $offset, $val);
     return $val;
 }
 
@@ -203,12 +203,12 @@ sub decr
 {
     my $self = shift;
     my $key  = shift;
+    my $offset = shift || 1;
     if ($self->{namespace}) {
         $key = "$self->{namespace}$key";
     }
-    $_[0] ||= 1 if @_ < 2;
     my $val = 0;
-    $self->memcached_decrement($key, $_[0], $val);
+    $self->memcached_decrement($key, $offset, $val);
     return $val;
 }
 
