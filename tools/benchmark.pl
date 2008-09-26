@@ -30,9 +30,23 @@ if (! GetOptions(
 $server ||= $ENV{MEMCACHED_SERVER} || 'localhost:11211';
 
 print "Module Information:\n";
-foreach my $module qw(Cache::Memcached Cache::Memcached::Fast Cache::Memcached::libmemcached) {
+foreach my $module qw(Cache::Memcached Cache::Memcached::Fast Cache::Memcached::libmemcached Memcached::libmemcached) {
     no strict 'refs';
     print " + $module => " . ${ "${module}::VERSION" }, "\n";
+}
+
+print "\n";
+print "Library Information:\n";
+print " + libmemcached => @{[ Memcached::libmemcached::memcached_lib_version() ]}\n";
+
+print "\n";
+print "Server Information:\n";
+{
+    my $memd = Cache::Memcached::Fast->new({servers => [$server]});
+    my $versions = $memd->server_versions;
+    while (my ($server, $version) = each %$versions) {
+        print " + $server => $version\n";
+    }
 }
 
 print "\n";
