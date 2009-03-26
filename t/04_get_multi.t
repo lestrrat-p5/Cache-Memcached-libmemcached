@@ -6,7 +6,7 @@ BEGIN
     if (! $ENV{ MEMCACHED_SERVER } ) {
         plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
     } else {
-        plan(tests => 6);
+        plan(tests => 10);
     }
     use_ok("Cache::Memcached::libmemcached");
 }
@@ -42,4 +42,24 @@ TODO: {
 
     is_deeply($h->{$key}, \%data);
 
+}
+
+{
+    my $cache2 = Cache::Memcached::libmemcached->new( {
+        servers => [ $ENV{ MEMCACHED_SERVER } ],
+        namespace => "t$$"
+    } );
+    isa_ok($cache, "Cache::Memcached::libmemcached");
+    
+    my @keys = ('A' .. 'Z');
+    foreach my $key (@keys) {
+        $cache2->set($key, $key);
+    }
+
+    my $h = $cache2->get_multi(@keys);
+    ok($h);
+    isa_ok($h, 'HASH');
+
+    my %expected = map { ($_ => $_) } @keys;
+    is_deeply( $h, \%expected, "got all the expected values");
 }

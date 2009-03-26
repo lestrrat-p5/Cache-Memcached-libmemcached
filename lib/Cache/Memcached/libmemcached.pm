@@ -212,6 +212,15 @@ sub decr
     return $val;
 }
 
+sub get_multi {
+    my $self = shift;
+
+    my $namespace = $self->{namespace};
+    my @keys = $namespace ? map { "$namespace$_" } @_ : @_;
+    my $hash = $self->SUPER::get_multi(@keys);
+    return $namespace ? +{ map { ($_ => $hash->{"$namespace$_"}) } @_ } : $hash;
+}
+
 sub flush_all
 {
     $_[0]->memcached_flush(0);
