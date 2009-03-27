@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.02009 - 03 Jul 2008
+  - Correct get_multi() interaction with namespaces (Faylan Lim)
+
 0.02008 - 03 Jul 2008
   - Offsets passed to decr() and incr() weren't properly handled.
     Pointed out by Taro Funaki
