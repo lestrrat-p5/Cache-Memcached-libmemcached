@@ -3,6 +3,7 @@ use Benchmark qw(cmpthese);
 use Cache::Memcached;
 use Cache::Memcached::Fast;
 use Cache::Memcached::libmemcached;
+use Memcached::libmemcached;
 use Getopt::Long;
 
 my $no_block = 0;
@@ -27,7 +28,7 @@ if (! GetOptions(
 )) {
     exit 1;
 }
-$server ||= $ENV{MEMCACHED_SERVER} || 'localhost:11211';
+$server ||= $ENV{MEMCACHED_SERVER} || '127.0.0.1:11211';
 
 print "Module Information:\n";
 foreach my $module qw(Cache::Memcached Cache::Memcached::Fast Cache::Memcached::libmemcached Memcached::libmemcached) {
@@ -52,6 +53,13 @@ print "Server Information:\n";
 print "\n";
 print "Options:\n";
 print " + Memcached server: $server\n";
+
+{
+    my $memd = Cache::Memcached->new({ servers => [ $server ] });
+    my $h = $memd->stats('misc');
+    print " + Memcached server version: ", $h->{hosts}{$server}->{misc}->{version}, "\n";
+}
+
 print " + Include no block mode (where applicable)? :", $no_block ? "YES" : "NO", "\n";
 
 my %args = (
@@ -64,9 +72,18 @@ my $data;
 print "\n";
 print "Prepping clients...\n";
 my %clients = (
-    perl_memcached => Cache::Memcached->new(\%args),
-    memcached_fast => Cache::Memcached::Fast->new(\%args),
-    libmemcached   => Cache::Memcached::libmemcached->new(\%args)
+    perl_memcached  => Cache::Memcached->new(\%args),
+    memcached_fast  => Cache::Memcached::Fast->new(\%args),
+    libmemcached    => Cache::Memcached::libmemcached->new(\%args),
+    memcached_plain => do {
+        my $memd = Memcached::libmemcached->new();
+        if ($server =~ /^([^:]+):([^:]+)$/) {
+            $memd->memcached_server_add($1, $2);
+        } else {
+            $memd->memcached_server_add_unix_socket($server);
+        }
+        $memd;
+    }
 );
 
 # Include non-blocking client modes
@@ -82,10 +99,18 @@ if ($modes{simple_get}) {
     print qq|==== Benchmark "Simple get() (scalar)" ====\n|;
     $data = '0123456789' x 10;
     $clients{perl_memcached}->set( 'foo', $data );
+#    $clients{memcached_plain}->memcached_set( 'foo', $data );
     cmpthese(50_000, +{
         map {
             my $client = $clients{$_};
-            $_ => sub { ($client->get('foo') eq $data) or die "$client did not return proper value" }
+            ($_ => sub { 
+                my $value  = ref $client eq 'Memcached::libmemcached' ?
+                    $client->memcached_get('foo') :
+                    $client->get('foo');
+                if ($value ne $data) {
+                    die "$client did not return proper value (wanted '$data', got '$value')"
+                }
+            })
         } keys %clients
     });
 }
