@@ -110,9 +110,10 @@ sub new
     );
 
     # behavior options
-    $self->set_no_block( $args->{no_block} ) if exists $args->{no_block};
-    $self->set_hashing_algorithm( $args->{hashing_algorithm} ) if exists $args->{hashing_algorithm};
-    $self->set_distribution_method( $args->{distribution_method} ) if exists $args->{distribution_method};
+    foreach my $option qw(no_block hashing_algorithm distribution_method binary_protocol) {
+        my $method = "set_$option";
+        $self->$method( $args->{$option} ) if exists $args->{$option};
+    }
 
     $self->{namespace} = $args->{namespace} || '';
 
@@ -133,7 +134,9 @@ sub server_add
     my $self = shift;
     my $server = shift;
 
-    # check for existance of : 
+    if (! defined $server) {
+        Carp::confess("server is not defined");
+    }
     if ($server =~ /^([^:]+):([^:]+)$/) {
         my ($hostname, $port) = ($1, $2);
         $self->memcached_server_add($hostname, $port );
@@ -228,9 +231,12 @@ sub flush_all
 
 *remove = \&delete;
 
-sub disconnect_all
-{
+sub disconnect_all {
     $_[0]->memcached_quit();
+}
+
+sub version {
+    $_[0]->memcached_version();
 }
 
 sub stats
@@ -266,7 +272,7 @@ sub stats
 
 BEGIN
 {
-    my @boolean_behavior = qw( no_block );
+    my @boolean_behavior = qw( no_block binary_protocol );
     my %behavior = (
         distribution_method => 'distribution',
         hashing_algorithm   => 'hash'
@@ -651,6 +657,13 @@ Get the hashing algorithm used.
   } );
 
 Enable/disable CAS support.
+
+=head1 set_binary_protocol
+
+  $memd->set_binary_protocol( 1 );
+  $binary = $memd->is_binary_protocol();
+
+Enable/disable binary protocol
 
 =head1 OPTIMIZE FLAG
 
