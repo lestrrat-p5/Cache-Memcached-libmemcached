@@ -1,19 +1,12 @@
 use strict;
+use lib "t/lib";
+use libmemcached_test;
 use Test::More;
 
-BEGIN
-{
-    if (! $ENV{ MEMCACHED_SERVER } ) {
-        plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
-    } else {
-        plan(tests => 25);
-    }
-    use_ok("Cache::Memcached::libmemcached");
-}
+my $cache = libmemcached_test_create();
 
-my $cache = Cache::Memcached::libmemcached->new( {
-    servers => [ $ENV{ MEMCACHED_SERVER } ]
-} );
+plan(tests => 24);
+
 isa_ok($cache, "Cache::Memcached::libmemcached");
 
 {
@@ -65,32 +58,27 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
 }
 
 { # default value in constructor
-    $cache = Cache::Memcached::libmemcached->new({
-        servers => [ $ENV{ MEMCACHED_SERVER } ],
-        compress_enable => 1,
-    });
+    $cache = libmemcached_test_create( {
+        compress_enable => 1
+    } );
     my $explicit = $cache->get_compress_enable;
 
-    $cache = Cache::Memcached::libmemcached->new({
-        servers => [ $ENV{ MEMCACHED_SERVER } ],
-    });
+    $cache = libmemcached_test_create();
     my $implicit = $cache->get_compress_enable;
 
     is($explicit, $implicit);
 
-    $cache = Cache::Memcached::libmemcached->new({
-        servers => [ $ENV{ MEMCACHED_SERVER } ],
+    $cache = libmemcached_test_create( {
         compress_enable => 0,
     });
     ok(!$cache->get_compress_enable, "check explicit compress_enable => 0");
 }
 
 SKIP: {
-    if (Cache::Memcached::libmemcached::OPTIMIZE) {
+    if (&Cache::Memcached::libmemcached::OPTIMIZE) {
         skip("OPTIMIZE flag is enabled", 1);
     }
-    $cache = Cache::Memcached::libmemcached->new({
-        servers => [ $ENV{ MEMCACHED_SERVER } ],
+    $cache = libmemcached_test_create( {
         compress_enable => 1,
     });
 

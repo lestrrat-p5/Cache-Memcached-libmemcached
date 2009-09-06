@@ -1,30 +1,24 @@
 use strict;
+use lib 't/lib';
+use libmemcached_test;
 use Test::More;
 
-BEGIN
-{
-    eval "use Cache::Memcached";
-    if ($@) {
-        plan( skip_all => "Cache::Memcached not available" );
-    } elsif (! $ENV{ MEMCACHED_SERVER } ) {
-        plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
-    } else {
-        plan(tests => 3);
-    }
-    use_ok("Cache::Memcached::libmemcached");
+eval "use Cache::Memcached";
+if ($@) {
+    plan( skip_all => "Cache::Memcached not available" );
 }
 
-my $cache = Cache::Memcached::libmemcached->new( {
-    servers => [ $ENV{ MEMCACHED_SERVER } ]
-} );
+my $cache = libmemcached_test_create();
+plan tests => 2;
+
 isa_ok($cache, "Cache::Memcached::libmemcached");
 
 my $cm = Cache::Memcached->new( {
-    servers => [ $ENV{ MEMCACHED_SERVER } ]
+    servers => [ libmemcached_test_servers() ]
 } );
 
 my $h = $cm->stats();
-my $version = $h->{hosts}->{ $ENV{ MEMCACHED_SERVER } }->{misc}->{version};
+my $version = $cache->version();
 my ($major, $minor, $micro) = split(/\./, $version);
 my $numified = $major + $minor / 1_000 + $micro / 1_000_000;
 

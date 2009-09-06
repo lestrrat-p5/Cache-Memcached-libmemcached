@@ -1,19 +1,12 @@
 use strict;
+use lib 't/lib';
+use libmemcached_test;
 use Test::More;
 
-BEGIN
-{
-    if (! $ENV{ MEMCACHED_SERVER } ) {
-        plan(skip_all => "Define MEMCACHED_SERVER (e.g. localhost:11211) to run this test");
-    } else {
-        plan(tests => 10);
-    }
-    use_ok("Cache::Memcached::libmemcached");
-}
+my $cache = libmemcached_test_create();
 
-my $cache = Cache::Memcached::libmemcached->new( {
-    servers => [ $ENV{ MEMCACHED_SERVER } ]
-} );
+plan(tests => 9);
+
 isa_ok($cache, "Cache::Memcached::libmemcached");
 
 {
@@ -45,8 +38,7 @@ TODO: {
 }
 
 {
-    my $cache2 = Cache::Memcached::libmemcached->new( {
-        servers => [ $ENV{ MEMCACHED_SERVER } ],
+    my $cache2 = libmemcached_test_create( {
         namespace => "t$$"
     } );
     isa_ok($cache, "Cache::Memcached::libmemcached");
