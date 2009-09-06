@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.02010 - 07 Sep 2009
+  - overhaul tests
+  - require Memcached::libmemcached 0.3102
+
 0.02009 - 03 Jul 2008
   - Correct get_multi() interaction with namespaces (Faylan Lim)
 
