@@ -3,7 +3,7 @@ use Benchmark qw(cmpthese);
 use Cache::Memcached;
 use Cache::Memcached::Fast;
 use Cache::Memcached::libmemcached;
-use Memcached::libmemcached;
+use Memcached::libmemcached qw(MEMCACHED_BEHAVIOR_BINARY_PROTOCOL);
 use Getopt::Long;
 
 my $no_block = 0;
@@ -75,6 +75,7 @@ my %clients = (
     perl_memcached  => Cache::Memcached->new(\%args),
     memcached_fast  => Cache::Memcached::Fast->new(\%args),
     libmemcached    => Cache::Memcached::libmemcached->new(\%args),
+    libmemcached_binary => Cache::Memcached::libmemcached->new({ %args, binary_protocol => 1 }),
     memcached_plain => do {
         my $memd = Memcached::libmemcached->new();
         if ($server =~ /^([^:]+):([^:]+)$/) {
@@ -82,6 +83,16 @@ my %clients = (
         } else {
             $memd->memcached_server_add_unix_socket($server);
         }
+        $memd;
+    },
+    memcached_plain_binary => do {
+        my $memd = Memcached::libmemcached->new();
+        if ($server =~ /^([^:]+):([^:]+)$/) {
+            $memd->memcached_server_add($1, $2);
+        } else {
+            $memd->memcached_server_add_unix_socket($server);
+        }
+        $memd->memcached_behavior_set( MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1 );
         $memd;
     }
 );
