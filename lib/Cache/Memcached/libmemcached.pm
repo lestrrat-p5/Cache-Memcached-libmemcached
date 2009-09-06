@@ -1,7 +1,3 @@
-# $Id$
-#
-# Copyright (c) 2008 Daisuke Maki <daisuke@endeworks.jp>
-# All rights reserved.
 
 package Cache::Memcached::libmemcached;
 use strict;
@@ -11,7 +7,7 @@ use Carp qw(croak);
 use Scalar::Util qw(weaken);
 use Storable ();
 
-our $VERSION = '0.02009';
+our $VERSION = '0.02010';
 
 use constant HAVE_ZLIB    => eval { require Compress::Zlib } && !$@;
 use constant F_STORABLE   => 1;
