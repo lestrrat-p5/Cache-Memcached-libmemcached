@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.02011 - 27 May 2011
+  - Fix usage of foreach qw() which emits warnings under perl 5.14
+    (rt #68487)
+
 0.02010 - 07 Sep 2009
   - overhaul tests
   - require Memcached::libmemcached 0.3102
