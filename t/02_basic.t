@@ -41,7 +41,7 @@ isa_ok($cache, "Cache::Memcached::libmemcached");
         is( $cache->get_compress_threshold(), $threshold );
     }
 
-    foreach my $savings qw(0.2 0.5 0.8) {
+    foreach my $savings (qw(0.2 0.5 0.8)) {
         $cache->set_compress_savings($savings);
         is( $cache->get_compress_savings(), $savings );
     }
